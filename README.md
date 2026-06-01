@@ -19,7 +19,7 @@ This is not a literal Markdown-to-HTML converter. It analyzes the source, extrac
 With [`npx skills`](https://github.com/vercel-labs/skills):
 
 ```bash
-npx skills add KeMezz/spec-to-readable-html
+npx skills add HALOXIAO/spec-to-readable-html
 ```
 
 Alternatively, manually place `SKILL.md`, `references/`, and `tools/` in your agent skill directory, such as `~/.claude/skills/spec-to-readable-html/`.
@@ -149,4 +149,4 @@ spec-to-readable-html/
 
 ## License
 
-[MIT](./LICENSE) © 2026 KeMezz
+[MIT](./LICENSE) © 2026 HALOXIAO
