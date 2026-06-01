@@ -9,7 +9,7 @@ arguments: lang
 
 This skill turns specifications into polished, human-readable HTML reports. It is not a simple Markdown renderer. It should analyze the source, summarize where helpful, reorganize content for comprehension, and add visual aids when they clarify the document.
 
-When invoked, `$lang` sets the output language (default: `ja`). If omitted, Japanese is used.
+When invoked, `$lang` sets the output language (default: `en`). If omitted, English is used.
 
 ## When to Use This Skill
 
@@ -179,7 +179,7 @@ For dense technical specs, include badges such as:
 
 ## Language
 
-Default output language is Japanese (`<html lang="ja">`). If the user requests a different language, use that language for all headings, badges, labels, and body text. Keep technical terms (API names, field names, paths, code identifiers) in their original language regardless.
+Default output language is English (`<html lang="en">`). If the user requests a different language, use that language for all headings, badges, labels, and body text. Keep technical terms (API names, field names, paths, code identifiers) in their original language regardless.
 
 ## Quality Checklist
 

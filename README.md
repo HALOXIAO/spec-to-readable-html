@@ -1,44 +1,44 @@
 # spec-to-readable-html
 
-Markdown / テキストの仕様書を、**要約・構造再編・図解・トレーサビリティ付きの「読みやすい HTML ドキュメント」**に変換する [Agent Skill](https://github.com/vercel-labs/skills) です。
+An [Agent Skill](https://github.com/vercel-labs/skills) that transforms Markdown or plain-text specifications into **readable HTML documents with summaries, reorganized structure, visual explanations, and source traceability**.
 
-単なる Markdown → HTML 変換ではありません。内容を解析して要約・再構成し、フローチャート / シーケンス図 / ER 図やカード・表などの視覚補助を加え、元仕様へのトレーサビリティを保ったまま 1 枚のポータブルな HTML を生成します。CSS は埋め込み、Mermaid 図を使う場合は既定で CDN に依存します。完全な自己完結 HTML が必要な場合は inline SVG を使用してください。
+This is not a literal Markdown-to-HTML converter. It analyzes the source, summarizes and restructures the content, adds visual aids such as flowcharts, sequence diagrams, ER diagrams, cards, and tables, and generates a single portable HTML file while preserving traceability to the original specification. CSS is embedded. Mermaid diagrams rely on a CDN by default; use inline SVG when a fully self-contained HTML file is required.
 
-## 特長
+## Features
 
-- **要約と再構成** — 長い仕様を読み手向けに整理（要件 / API / データ / リスク / 未決事項）
-- **視覚化** — Mermaid 図（フロー・シーケンス・状態・ER）、サマリーカード、バッジ、表
-- **トレーサビリティ** — 出力の各セクションを元仕様にマッピング（Preserved / Summarized / Inferred）
-- **ポータブル HTML** — 埋め込み CSS、目次、図のズーム表示、印刷対応。Mermaid 使用時は CDN 依存あり（完全自己完結が必要なら inline SVG）
-- **多言語** — 既定は日本語。`lang` 引数で切り替え
+- **Summarization and restructuring** - Organizes long specifications for readers, covering requirements, APIs, data, risks, and open questions.
+- **Visualization** - Adds Mermaid diagrams for flows, sequences, states, and ER models, plus summary cards, badges, and tables.
+- **Traceability** - Maps each output section back to the source specification as Preserved, Summarized, or Inferred.
+- **Portable HTML** - Uses embedded CSS, a table of contents, diagram zoom support, and print-friendly styling. Mermaid output has a CDN dependency unless inline SVG is used.
+- **Multilingual output** - Defaults to English and can be changed with the `lang` argument.
 
-## インストール
+## Installation
 
-[`npx skills`](https://github.com/vercel-labs/skills) を使う場合:
+With [`npx skills`](https://github.com/vercel-labs/skills):
 
 ```bash
 npx skills add KeMezz/spec-to-readable-html
 ```
 
-または、`SKILL.md` と `references/` をエージェントのスキルディレクトリ（`~/.claude/skills/spec-to-readable-html/` など）に手動で配置してください。
+Alternatively, manually place `SKILL.md` and `references/` in your agent skill directory, such as `~/.claude/skills/spec-to-readable-html/`.
 
-## 使い方
+## Usage
 
-Claude Code などで仕様書（Markdown / テキスト）を渡し、本スキルを呼び出します。
+Pass a Markdown or plain-text specification to Claude Code or another compatible agent, then invoke this skill.
 
 ```
-/spec-to-readable-html ja
+/spec-to-readable-html en
 ```
 
-`lang` を省略すると日本語で出力します。
+If `lang` is omitted, the output is generated in English.
 
-## 出力テンプレートのカスタマイズ
+## Customizing the Output Template
 
-`references/template.html` をベース HTML として使用します。ロゴと配色はプレースホルダ／中立色にしてあるので、自分のブランドに合わせて変更できます。
+Use `references/template.html` as the base HTML file. The logo and color palette use placeholders and neutral defaults so they can be adapted to your brand.
 
-- **ロゴ** — `{{LOGO}}` に `<svg>` / `<img>` を差し込み（不要なら削除可）
-- **配色** — `:root` の `--color-*` トークンを変更
+- **Logo** - Insert an `<svg>` or `<img>` into `{{LOGO}}`, or remove it if unnecessary.
+- **Colors** - Change the `--color-*` tokens in `:root`.
 
-## ライセンス
+## License
 
 [MIT](./LICENSE) © 2026 KeMezz
