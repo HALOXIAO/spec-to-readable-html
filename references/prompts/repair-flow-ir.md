@@ -30,6 +30,7 @@ Do not output Markdown, HTML, Mermaid, SVG, commentary, or code fences.
 - Add missing required fields.
 - Fix duplicate IDs.
 - Fix edge references to missing nodes.
+- Fix `model_relationships` that reference missing data models or missing relationship fields.
 - Add labels to decision branches.
 - Add source references or inference rationale.
 - Replace unsafe Mermaid/SVG/HTML content with plain text labels.

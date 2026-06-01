@@ -113,6 +113,7 @@ Before producing final HTML, identify:
 - Target audience: business, engineering, QA, operations, security/SRE, mixed audience.
 - Scope and out-of-scope areas.
 - Main entities: users, systems, APIs, screens, jobs, data models.
+- Main data structures: entities, tables, payloads, events, fields, and relationships between models.
 - Main processes: workflows, sequences, state transitions.
 - Main decisions, states, system interactions, risks, ambiguities, and missing decisions.
 
@@ -177,7 +178,9 @@ FlowIR is a machine-checkable semantic representation of the spec. It should inc
 - `version`.
 - `document` metadata: title, source, doc type, language, audience, scope.
 - `diagrams`: purpose, scope, out-of-scope, type, direction, nodes, edges, risks, confidence, source references, assumptions, open questions, and reviewer guidance.
-- `requirements`, `apis`, `data_models`, `states`, `decisions`, `risks`, `open_questions`, and `assumptions` when present in the source.
+- `data_models`: entities, tables, API payloads, events, value objects, state objects, and their fields.
+- `model_relationships`: relationship type, cardinality, source/target model IDs, join/reference fields, requiredness, risk, evidence, and confidence.
+- `requirements`, `apis`, `states`, `decisions`, `risks`, `open_questions`, and `assumptions` when present in the source.
 
 Every critical node and edge should include:
 
@@ -196,7 +199,10 @@ Traceability must exist at multiple levels:
 - Diagram-level traceability.
 - Node-level traceability.
 - Edge-level traceability.
+- Model-level, field-level, and model-relationship traceability.
 - Risk/open-question traceability.
+
+Only extract model relationships that are present in the source or clearly labeled as inferred. Do not invent relationships solely to make an ER diagram more complete.
 
 ## ReviewPacket Contract
 
@@ -229,6 +235,7 @@ Use:
 - DOT / Graphviz for large directed graphs.
 - PlantUML for UML-heavy sequence, state, activity, or component diagrams.
 - D2 for polished architecture or dependency diagrams when supported.
+- Mermaid ER diagrams or relationship maps for data models when FlowIR contains `data_models` and `model_relationships`.
 - HTML/CSS cards and tables for summaries, comparisons, and evidence matrices.
 - Raster images only if image generation or screenshots are explicitly requested or already available.
 
@@ -280,6 +287,7 @@ Generated HTML should usually include:
 - Visual diagrams with captions and accessible labels.
 - Source traceability notes.
 - Raw FlowIR / ReviewPacket / diagram source appendix when useful.
+- Data model and relationship tables when the source defines entities, fields, payloads, or model dependencies.
 - Print-friendly styling.
 
 For dense technical specs, include badges such as:
@@ -314,7 +322,7 @@ For dense technical specs, include badges such as:
 If previous FlowIR or a previous spec is available:
 
 - Compare FlowIR, not HTML.
-- Highlight changed nodes, edges, decisions, states, APIs, risks, and open questions.
+- Highlight changed nodes, edges, decisions, states, APIs, data models, model relationships, risks, and open questions.
 - Do not ask reviewers to inspect SVG or HTML diffs.
 - Include semantic diff in ReviewPacket and review HTML.
 
@@ -350,5 +358,7 @@ Before finalizing review output, verify:
 - [ ] Every diagram has purpose, scope, and `reviewer_should_check`.
 - [ ] Every decision node has at least two labeled outgoing branches.
 - [ ] Evidence matrix includes all critical nodes and edges.
+- [ ] Evidence matrix includes critical models, fields, and model relationships when present.
+- [ ] Model relationships reference existing models and relationship fields.
 - [ ] Blocking open questions have owner/action placeholders.
 - [ ] Final HTML does not require reviewers to inspect raw SVG.

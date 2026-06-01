@@ -117,5 +117,6 @@ Stacked horizontal bars for proportional data (e.g., test pyramid, cost breakdow
 - Use semantic HTML elements (`section`, `figure`, `figcaption`, `table`, `nav`, `code`).
 - Number figures sequentially: Fig 1, Fig 2, ... Localize figure labels only when the user requests another output language.
 - Every diagram must have a `<figcaption>`.
+- Data model diagrams and relationship maps must be derived from FlowIR `data_models` and `model_relationships` when those structures are available.
 - The traceability table in the Appendix must map each output section to its source section and indicate whether content was Preserved, Summarized, or Inferred.
 - Mermaid CDN script goes at the bottom of `<body>` when Mermaid blocks are used. Note this external dependency in the footer or a comment. For fully self-contained/offline output, use inline SVG and omit the Mermaid CDN script.

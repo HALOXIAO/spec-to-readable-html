@@ -10,7 +10,7 @@ Use this guide for review-mode HTML. Review mode is not a narrative article. It 
 2. **Review Summary** - intent, what changed, why changed, impact, reviewer should check.
 3. **Automated Checks** - blockers first, then warnings, then passed checks.
 4. **High-Risk Items** - high risk + changed, high risk + inferred, high risk + missing evidence.
-5. **Semantic Diff** - nodes, edges, decisions, states, APIs, and risks changed.
+5. **Semantic Diff** - nodes, edges, decisions, states, APIs, data models, model relationships, and risks changed.
 6. **Diagrams** - scope/context diagram, main flowchart, state machine, sequence diagram, impact graph as applicable.
 7. **Evidence Matrix** - generated claim, source refs, evidence type, confidence, reviewer action.
 8. **Open Questions & Assumptions** - blocking questions first, with owner/action columns.
@@ -105,6 +105,7 @@ Use escaped `<pre><code>` blocks for FlowIR JSON, ReviewPacket JSON, Mermaid/DOT
 - Blockers and inferred high-risk items must be above diagrams and raw artifacts.
 - Every high-risk item must show source refs or a blocking open question.
 - Every diagram must have a caption and accessible label.
+- Data model diagrams must be derived from `data_models` and `model_relationships`.
 - No raw source HTML should pass through unescaped.
 - No placeholder tokens may remain in final output.
 - Runtime dependencies must be declared in the footer.

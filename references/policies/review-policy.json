@@ -22,6 +22,9 @@
       "diagram",
       "node",
       "edge",
+      "model",
+      "field",
+      "model_relationship",
       "risk",
       "open_question"
     ],

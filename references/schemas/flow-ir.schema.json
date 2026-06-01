@@ -60,7 +60,11 @@
     },
     "data_models": {
       "type": "array",
-      "items": { "$ref": "#/$defs/namedItem" }
+      "items": { "$ref": "#/$defs/dataModel" }
+    },
+    "model_relationships": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/modelRelationship" }
     },
     "states": {
       "type": "array",
@@ -334,6 +338,114 @@
           }
         }
       ]
+    },
+    "dataModel": {
+      "allOf": [
+        { "$ref": "#/$defs/traceable" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "name", "kind", "fields"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "name": { "type": "string", "minLength": 1 },
+            "kind": {
+              "type": "string",
+              "enum": ["entity", "table", "api_payload", "value_object", "event", "state", "view", "external"]
+            },
+            "description": { "type": "string" },
+            "fields": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/modelField" }
+            },
+            "source_refs": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/sourceRef" }
+            },
+            "inference": { "$ref": "#/$defs/inference" },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      ]
+    },
+    "modelField": {
+      "allOf": [
+        { "$ref": "#/$defs/traceable" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "name"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "name": { "type": "string", "minLength": 1 },
+            "type": { "type": "string" },
+            "description": { "type": "string" },
+            "required": { "type": "boolean" },
+            "nullable": { "type": "boolean" },
+            "unique": { "type": "boolean" },
+            "enum_values": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "source_refs": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/sourceRef" }
+            },
+            "inference": { "$ref": "#/$defs/inference" },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      ]
+    },
+    "modelRelationship": {
+      "allOf": [
+        { "$ref": "#/$defs/traceable" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "from", "to", "type", "cardinality"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "from": { "$ref": "#/$defs/id" },
+            "to": { "$ref": "#/$defs/id" },
+            "type": {
+              "type": "string",
+              "enum": ["references", "owns", "contains", "emits", "consumes", "depends_on", "extends", "implements", "maps_to"]
+            },
+            "cardinality": {
+              "type": "string",
+              "enum": ["one_to_one", "one_to_many", "many_to_one", "many_to_many", "unknown"]
+            },
+            "via_field": { "$ref": "#/$defs/id" },
+            "via_fields": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "$ref": "#/$defs/modelRelationshipField" }
+            },
+            "required": { "type": "boolean" },
+            "description": { "type": "string" },
+            "risk": { "$ref": "#/$defs/risk" },
+            "source_refs": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/sourceRef" }
+            },
+            "inference": { "$ref": "#/$defs/inference" },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+          },
+          "not": {
+            "required": ["via_field", "via_fields"]
+          }
+        }
+      ]
+    },
+    "modelRelationshipField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from_field"],
+      "properties": {
+        "from_field": { "$ref": "#/$defs/id" },
+        "to_field": { "$ref": "#/$defs/id" }
+      }
     },
     "namedItem": {
       "allOf": [

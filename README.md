@@ -10,7 +10,8 @@ This is not a literal Markdown-to-HTML converter. It analyzes the source, extrac
 - **Article mode** - Produces readable HTML reports with summaries, reorganized structure, visual explanations, and source traceability.
 - **Review mode** - Produces review packets with risk-first summaries, automated checks, semantic diff, evidence matrix, open questions, assumptions, and role-specific checklists.
 - **Diagram policy** - Generates Mermaid/DOT-style diagram sources from FlowIR and prefers pre-rendered inline SVG for standalone review output.
-- **Traceability** - Tracks section, diagram, node, edge, risk, and open-question evidence back to source references.
+- **Data model relationships** - Represents entities, fields, API payloads, events, and model relationships as FlowIR data before rendering ER diagrams or relationship maps.
+- **Traceability** - Tracks section, diagram, node, edge, model, field, relationship, risk, and open-question evidence back to source references.
 - **Portable HTML** - Uses embedded CSS and print-friendly styling. Review mode avoids runtime CDN dependencies when inline SVG rendering is available.
 - **Local validation** - Includes a dependency-free `tools/build-flowir.mjs` helper for FlowIR validation and Mermaid source generation.
 
@@ -53,6 +54,7 @@ Use review mode when:
 
 - The user asks to review, validate, approve, inspect, check, or compare a spec.
 - The source contains workflows, states, APIs, dependencies, or cross-system interactions.
+- The source defines data models, payloads, events, database tables, or relationships between models.
 - Traceability and validation matter more than narrative polish.
 
 Review mode produces:
@@ -78,6 +80,7 @@ Article mode produces:
 - Reader-friendly workflows and diagrams.
 - Functional and non-functional requirement tables.
 - API/data/system overview.
+- Data model and relationship map when the source defines model structure.
 - Risks, assumptions, and open questions.
 - Source-aligned appendix.
 - Final readable HTML.
@@ -100,7 +103,7 @@ node tools/build-flowir.mjs --flowir examples/minimal.flowir.json --require-svg
 
 `--render-svg` uses `mmdc` if it is already installed on the machine and reports renderer problems as warnings. `--require-svg` treats SVG render failure as an error. The script does not install dependencies.
 
-The script does not extract FlowIR from a source spec and does not guarantee semantic correctness by itself. It checks structure, graph consistency, traceability, source line references, unsafe content patterns, and review-packet packaging for FlowIR that an agent or human has already produced.
+The script does not extract FlowIR from a source spec and does not guarantee semantic correctness by itself. It checks structure, graph consistency, data model relationships, traceability, source line references, unsafe content patterns, and review-packet packaging for FlowIR that an agent or human has already produced.
 
 ## Non-Goals
 

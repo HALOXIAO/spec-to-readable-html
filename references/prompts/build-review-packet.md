@@ -22,6 +22,7 @@ Do not output Markdown, HTML, Mermaid, SVG, commentary, or code fences.
 - High-risk, inferred, unsupported, or missing-evidence items must be surfaced early.
 - Automated validation blockers and warnings must be preserved.
 - Semantic diff must compare FlowIR objects when previous FlowIR is available.
+- Semantic diff should include model and model relationship changes when `data_models` or `model_relationships` are present.
 - Evidence matrix rows must point to source references whenever possible.
 - Blocking open questions should include owner/action placeholders when the source does not provide them.
 - Role-specific review items should be concrete and checkable.

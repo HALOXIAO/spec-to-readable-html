@@ -78,6 +78,8 @@
         "decisions_changed": { "type": "array" },
         "states_changed": { "type": "array" },
         "apis_changed": { "type": "array" },
+        "models_changed": { "type": "array" },
+        "model_relationships_changed": { "type": "array" },
         "risks_changed": { "type": "array" }
       }
     },

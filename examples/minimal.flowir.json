@@ -249,7 +249,143 @@
     }
   ],
   "apis": [],
-  "data_models": [],
+  "data_models": [
+    {
+      "id": "order",
+      "name": "Order",
+      "kind": "entity",
+      "description": "Order created during checkout.",
+      "source_refs": [
+        {
+          "file": "minimal-source.md",
+          "lines": { "start": 11, "end": 11 },
+          "quote": "The `Order` model has fields `id`, `status`, and `payment_request_id`."
+        }
+      ],
+      "confidence": 0.95,
+      "fields": [
+        {
+          "id": "id",
+          "name": "id",
+          "description": "Order identifier.",
+          "source_refs": [
+            {
+              "file": "minimal-source.md",
+              "lines": { "start": 11, "end": 11 },
+              "quote": "`Order` model has fields `id`, `status`, and `payment_request_id`"
+            }
+          ],
+          "confidence": 0.95
+        },
+        {
+          "id": "status",
+          "name": "status",
+          "description": "Order status.",
+          "source_refs": [
+            {
+              "file": "minimal-source.md",
+              "lines": { "start": 11, "end": 11 },
+              "quote": "`Order` model has fields `id`, `status`, and `payment_request_id`"
+            }
+          ],
+          "confidence": 0.95
+        },
+        {
+          "id": "payment_request_id",
+          "name": "payment_request_id",
+          "description": "Identifier for the related payment request.",
+          "source_refs": [
+            {
+              "file": "minimal-source.md",
+              "lines": { "start": 11, "end": 11 },
+              "quote": "`Order` model has fields `id`, `status`, and `payment_request_id`"
+            }
+          ],
+          "confidence": 0.95
+        }
+      ]
+    },
+    {
+      "id": "payment_request",
+      "name": "PaymentRequest",
+      "kind": "entity",
+      "description": "Payment request created when stock is available.",
+      "source_refs": [
+        {
+          "file": "minimal-source.md",
+          "lines": { "start": 13, "end": 13 },
+          "quote": "The `PaymentRequest` model has fields `id`, `order_id`, and `status`."
+        }
+      ],
+      "confidence": 0.95,
+      "fields": [
+        {
+          "id": "id",
+          "name": "id",
+          "description": "Payment request identifier.",
+          "source_refs": [
+            {
+              "file": "minimal-source.md",
+              "lines": { "start": 13, "end": 13 },
+              "quote": "`PaymentRequest` model has fields `id`, `order_id`, and `status`"
+            }
+          ],
+          "confidence": 0.95
+        },
+        {
+          "id": "order_id",
+          "name": "order_id",
+          "description": "Reference to the related order.",
+          "source_refs": [
+            {
+              "file": "minimal-source.md",
+              "lines": { "start": 13, "end": 15 },
+              "quote": "Each `PaymentRequest` references exactly one `Order` through `order_id`."
+            }
+          ],
+          "confidence": 0.97
+        },
+        {
+          "id": "status",
+          "name": "status",
+          "description": "Payment request status.",
+          "source_refs": [
+            {
+              "file": "minimal-source.md",
+              "lines": { "start": 13, "end": 13 },
+              "quote": "`PaymentRequest` model has fields `id`, `order_id`, and `status`"
+            }
+          ],
+          "confidence": 0.95
+        }
+      ]
+    }
+  ],
+  "model_relationships": [
+    {
+      "id": "payment_request_order",
+      "from": "payment_request",
+      "to": "order",
+      "type": "references",
+      "cardinality": "many_to_one",
+      "via_fields": [
+        {
+          "from_field": "order_id",
+          "to_field": "id"
+        }
+      ],
+      "required": true,
+      "description": "Each payment request references exactly one order.",
+      "source_refs": [
+        {
+          "file": "minimal-source.md",
+          "lines": { "start": 15, "end": 15 },
+          "quote": "Each `PaymentRequest` references exactly one `Order` through `order_id`."
+        }
+      ],
+      "confidence": 0.98
+    }
+  ],
   "states": [],
   "decisions": [],
   "risks": [],

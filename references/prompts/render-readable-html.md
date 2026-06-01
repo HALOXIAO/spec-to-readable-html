@@ -27,6 +27,7 @@ Use:
 - Every figure must have a caption and accessible label.
 - Review mode should prioritize blockers, warnings, high-risk items, semantic diff, evidence matrix, and role-specific review.
 - Article mode should prioritize readability, explanation, and narrative structure.
+- Data model diagrams, ER diagrams, and relationship maps must be derived from FlowIR `data_models` and `model_relationships`, not from hand-authored SVG semantics.
 - Preserve raw FlowIR, ReviewPacket, and diagram source in the appendix when useful.
 - Document any runtime dependency such as Mermaid CDN.
 - If output must be offline or self-contained, use inline SVG and omit runtime CDN scripts.

@@ -27,10 +27,21 @@ Do not output Markdown, HTML, Mermaid, SVG, commentary, or code fences.
 2. Identify scope and out-of-scope.
 3. Extract source sections and readable blocks.
 4. Extract workflows, states, interactions, and dependencies.
-5. Extract requirements, APIs, data models, decisions, risks, assumptions, and open questions.
+5. Extract requirements, APIs, data models, model relationships, decisions, risks, assumptions, and open questions.
 6. Attach source references.
 7. Mark inferred or unsupported material.
 8. Check that diagrams have purpose, scope, and reviewer guidance.
+
+## Data Model Rules
+
+- Extract `data_models` when the source defines entities, tables, API payloads, events, value objects, state objects, or other named data structures.
+- Add `fields` when the source defines field names, types, required/optional status, nullable status, enum values, or descriptions.
+- Extract `model_relationships` when the source states or strongly implies relationships between models.
+- Relationship `from` and `to` must reference `data_models[*].id`.
+- Use `via_field` or `via_fields` when the relationship is expressed through a field such as `order.user_id -> user.id`.
+- Do not invent model relationships for the sake of making an ER diagram.
+- If a relationship is useful but not explicit, mark it with `inference.type` and `inference.rationale`.
+- Preserve source refs for every critical model, field, and relationship.
 
 ## Output
 

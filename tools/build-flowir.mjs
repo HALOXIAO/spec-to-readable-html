@@ -12,6 +12,9 @@ const NODE_KINDS = new Set(["start", "end", "process", "decision", "state", "act
 const MERMAID_TYPES = new Set(["flowchart", "sequence", "state", "er", "architecture", "dependency_graph"]);
 const TREATMENTS = new Set(["preserved", "summarized", "inferred"]);
 const RISK_LEVELS = new Set(["low", "medium", "high"]);
+const DATA_MODEL_KINDS = new Set(["entity", "table", "api_payload", "value_object", "event", "state", "view", "external"]);
+const MODEL_RELATIONSHIP_TYPES = new Set(["references", "owns", "contains", "emits", "consumes", "depends_on", "extends", "implements", "maps_to"]);
+const MODEL_CARDINALITIES = new Set(["one_to_one", "one_to_many", "many_to_one", "many_to_many", "unknown"]);
 const FORBIDDEN_TEXT = [
   /<script\b/i,
   /<foreignObject\b/i,
@@ -76,6 +79,7 @@ validateAllSourceRefs(flowir, sourceFiles, flowirDir);
 validateTraceability(flowir, sourceFiles, flowirDir);
 validateDiagrams(flowir);
 validateRequirements(flowir);
+validateModelStructures(flowir);
 validateRiskLevels(flowir);
 validateDependencies(args);
 
@@ -395,6 +399,129 @@ function validateRequirements(root) {
   }
 }
 
+function validateModelStructures(root) {
+  if (root.data_models !== undefined && !Array.isArray(root.data_models)) {
+    fail("model.array", "data_models must be an array when present.");
+  }
+  if (root.model_relationships !== undefined && !Array.isArray(root.model_relationships)) {
+    fail("model_relationship.array", "model_relationships must be an array when present.");
+  }
+
+  const modelIds = new Set();
+  const fieldIdsByModel = new Map();
+
+  for (const [modelIndex, model] of arrayOf(root.data_models).entries()) {
+    const modelPath = `$.data_models[${modelIndex}]`;
+    if (!model || typeof model !== "object") {
+      fail("model.object", `${modelPath} must be an object.`);
+      continue;
+    }
+    if (!nonEmpty(model.id) || !ID_RE.test(model.id)) {
+      fail("model.id", `${modelPath}.id must be a stable lowercase id.`);
+    }
+    if (!nonEmpty(model.name)) {
+      fail("model.name", `${model.id || modelPath} is missing name.`);
+    }
+    if (!DATA_MODEL_KINDS.has(model.kind)) {
+      fail("model.kind", `${model.id || modelPath} has invalid kind: ${model.kind}`);
+    }
+    if (nonEmpty(model.id) && ID_RE.test(model.id)) modelIds.add(model.id);
+
+    if (!Array.isArray(model.fields)) {
+      fail("model.fields", `${model.id || modelPath}.fields must be an array.`);
+    }
+    const fields = arrayOf(model.fields);
+    const fieldIds = new Set();
+    for (const [fieldIndex, field] of fields.entries()) {
+      const fieldPath = `${modelPath}.fields[${fieldIndex}]`;
+      if (!field || typeof field !== "object") {
+        fail("model.field.object", `${fieldPath} must be an object.`);
+        continue;
+      }
+      if (!nonEmpty(field.id) || !ID_RE.test(field.id)) {
+        fail("model.field.id", `${fieldPath}.id must be a stable lowercase id.`);
+      }
+      if (!nonEmpty(field.name)) {
+        fail("model.field.name", `${fieldPath}.name is required.`);
+      }
+      for (const boolKey of ["required", "nullable", "unique"]) {
+        if (field[boolKey] !== undefined && typeof field[boolKey] !== "boolean") {
+          fail("model.field.boolean", `${fieldPath}.${boolKey} must be boolean when present.`);
+        }
+      }
+      if (fieldIds.has(field.id)) {
+        fail("model.field.unique", `${model.id || modelPath} has duplicate field id: ${field.id}`);
+      }
+      if (nonEmpty(field.id) && ID_RE.test(field.id)) fieldIds.add(field.id);
+    }
+    if (nonEmpty(model.id) && ID_RE.test(model.id)) fieldIdsByModel.set(model.id, fieldIds);
+  }
+
+  for (const [relIndex, rel] of arrayOf(root.model_relationships).entries()) {
+    const relPath = `$.model_relationships[${relIndex}]`;
+    if (!rel || typeof rel !== "object") {
+      fail("model_relationship.object", `${relPath} must be an object.`);
+      continue;
+    }
+    if (!nonEmpty(rel.from) || !ID_RE.test(rel.from)) {
+      fail("model_relationship.from", `${rel.id || relPath}.from must be a stable lowercase model id.`);
+    }
+    if (!nonEmpty(rel.to) || !ID_RE.test(rel.to)) {
+      fail("model_relationship.to", `${rel.id || relPath}.to must be a stable lowercase model id.`);
+    }
+    if (!modelIds.has(rel.from)) {
+      fail("model_relationship.from", `${rel.id || relPath}.from references missing data model: ${rel.from}`);
+    }
+    if (!modelIds.has(rel.to)) {
+      fail("model_relationship.to", `${rel.id || relPath}.to references missing data model: ${rel.to}`);
+    }
+    if (!MODEL_RELATIONSHIP_TYPES.has(rel.type)) {
+      fail("model_relationship.type", `${rel.id || relPath} has invalid type: ${rel.type}`);
+    }
+    if (!MODEL_CARDINALITIES.has(rel.cardinality)) {
+      fail("model_relationship.cardinality", `${rel.id || relPath} has invalid cardinality: ${rel.cardinality}`);
+    }
+    if (rel.required !== undefined && typeof rel.required !== "boolean") {
+      fail("model_relationship.required", `${rel.id || relPath}.required must be boolean when present.`);
+    }
+    if (rel.via_field !== undefined && rel.via_fields !== undefined) {
+      fail("model_relationship.via_conflict", `${rel.id || relPath} must use either via_field or via_fields, not both.`);
+    }
+    if (rel.via_fields !== undefined && !Array.isArray(rel.via_fields)) {
+      fail("model_relationship.via_fields", `${rel.id || relPath}.via_fields must be an array when present.`);
+    }
+
+    const fromFields = fieldIdsByModel.get(rel.from) || new Set();
+    const toFields = fieldIdsByModel.get(rel.to) || new Set();
+    if (rel.via_field !== undefined) {
+      if (!nonEmpty(rel.via_field) || !ID_RE.test(rel.via_field)) {
+        fail("model_relationship.via_field", `${rel.id || relPath}.via_field must be a stable lowercase field id.`);
+      } else if (!fromFields.has(rel.via_field)) {
+        fail("model_relationship.via_field", `${rel.id || relPath}.via_field is not a field on ${rel.from}: ${rel.via_field}`);
+      }
+    }
+    for (const [fieldIndex, mapping] of arrayOf(rel.via_fields).entries()) {
+      const mappingPath = `${relPath}.via_fields[${fieldIndex}]`;
+      if (!mapping || typeof mapping !== "object") {
+        fail("model_relationship.via_fields", `${mappingPath} must be an object.`);
+        continue;
+      }
+      if (!nonEmpty(mapping.from_field) || !ID_RE.test(mapping.from_field)) {
+        fail("model_relationship.from_field", `${mappingPath}.from_field must be a stable lowercase field id.`);
+      } else if (!fromFields.has(mapping.from_field)) {
+        fail("model_relationship.from_field", `${mappingPath}.from_field is not a field on ${rel.from}: ${mapping.from_field}`);
+      }
+      if (mapping.to_field !== undefined) {
+        if (!nonEmpty(mapping.to_field) || !ID_RE.test(mapping.to_field)) {
+          fail("model_relationship.to_field", `${mappingPath}.to_field must be a stable lowercase field id.`);
+        } else if (!toFields.has(mapping.to_field)) {
+          fail("model_relationship.to_field", `${mappingPath}.to_field is not a field on ${rel.to}: ${mapping.to_field}`);
+        }
+      }
+    }
+  }
+}
+
 function validateRiskLevels(root) {
   for (const item of collectTraceableObjects(root)) {
     const level = item.object.risk?.level || item.object.level;
@@ -460,6 +587,8 @@ function buildReviewPacket(root, sourceFiles, validationReport) {
       decisions_changed: [],
       states_changed: [],
       apis_changed: [],
+      models_changed: [],
+      model_relationships_changed: [],
       risks_changed: []
     },
     evidence_matrix: evidence,
@@ -633,6 +762,7 @@ function collectIdentifiedObjects(root) {
   add(root.requirements, "$.requirements");
   add(root.apis, "$.apis");
   add(root.data_models, "$.data_models");
+  add(root.model_relationships, "$.model_relationships");
   add(root.states, "$.states");
   add(root.decisions, "$.decisions");
   add(root.risks, "$.risks");
@@ -660,6 +790,10 @@ function collectTraceableObjects(root) {
   pushTraceable(root.requirements, "$.requirements");
   pushTraceable(root.apis, "$.apis");
   pushTraceable(root.data_models, "$.data_models");
+  for (const [modelIndex, model] of arrayOf(root.data_models).entries()) {
+    pushTraceable(model.fields, `$.data_models[${modelIndex}].fields`);
+  }
+  pushTraceable(root.model_relationships, "$.model_relationships");
   pushTraceable(root.states, "$.states");
   pushTraceable(root.decisions, "$.decisions");
   pushTraceable(root.risks, "$.risks");
