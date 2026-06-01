@@ -1,0 +1,273 @@
+{
+  "version": "flow-ir/v1",
+  "document": {
+    "title": "Payment Creation Spec",
+    "source": "minimal-source.md",
+    "doc_type": "technical_spec",
+    "language": "en",
+    "audience": ["product", "engineering", "qa"],
+    "scope": "Order submission through payment request creation.",
+    "out_of_scope": ["refunds", "settlement", "payment provider retries"]
+  },
+  "sections": [
+    {
+      "id": "summary",
+      "title": "Summary",
+      "treatment": "summarized",
+      "source_refs": [
+        {
+          "file": "minimal-source.md",
+          "lines": { "start": 3, "end": 7 },
+          "quote": "When a user submits an order, the system MUST check whether stock is available."
+        }
+      ],
+      "confidence": 0.96,
+      "blocks": [
+        {
+          "id": "summary_block",
+          "kind": "summary",
+          "content": "Order submission checks stock before creating a payment request.",
+          "source_refs": [
+            {
+              "file": "minimal-source.md",
+              "lines": { "start": 3, "end": 7 },
+              "quote": "If stock is available, the system creates a payment request and returns `PAYMENT_PENDING`."
+            }
+          ],
+          "confidence": 0.95
+        }
+      ]
+    }
+  ],
+  "diagrams": [
+    {
+      "id": "payment_creation_flow",
+      "title": "Payment Creation Flow",
+      "type": "flowchart",
+      "direction": "TD",
+      "purpose": "Help reviewers confirm the main stock-check and payment-creation branches.",
+      "scope": "Order submission through payment request creation.",
+      "out_of_scope": ["refunds", "settlement", "payment provider retries"],
+      "status": "confirmed",
+      "source_refs": [
+        {
+          "file": "minimal-source.md",
+          "lines": { "start": 3, "end": 7 },
+          "quote": "If stock is unavailable, the system MUST return `OUT_OF_STOCK` and must not create a payment request."
+        }
+      ],
+      "confidence": 0.94,
+      "reviewer_should_check": [
+        "Confirm that unavailable stock does not create a payment request.",
+        "Decide whether payment provider timeout retry behavior is in scope."
+      ],
+      "nodes": [
+        {
+          "id": "submit_order",
+          "label": "Submit order",
+          "kind": "start",
+          "description": "User submits an order.",
+          "source_refs": [
+            {
+              "file": "minimal-source.md",
+              "lines": { "start": 3, "end": 3 },
+              "quote": "When a user submits an order"
+            }
+          ],
+          "confidence": 0.98
+        },
+        {
+          "id": "check_stock",
+          "label": "Stock available?",
+          "kind": "decision",
+          "description": "System checks whether stock is available.",
+          "risk": {
+            "level": "medium",
+            "reasons": ["Controls whether payment is created."]
+          },
+          "source_refs": [
+            {
+              "file": "minimal-source.md",
+              "lines": { "start": 3, "end": 3 },
+              "quote": "the system MUST check whether stock is available"
+            }
+          ],
+          "confidence": 0.98
+        },
+        {
+          "id": "create_payment",
+          "label": "Create payment request",
+          "kind": "process",
+          "description": "System creates a payment request.",
+          "source_refs": [
+            {
+              "file": "minimal-source.md",
+              "lines": { "start": 5, "end": 5 },
+              "quote": "the system creates a payment request"
+            }
+          ],
+          "confidence": 0.96
+        },
+        {
+          "id": "return_pending",
+          "label": "Return PAYMENT_PENDING",
+          "kind": "end",
+          "description": "System returns PAYMENT_PENDING.",
+          "source_refs": [
+            {
+              "file": "minimal-source.md",
+              "lines": { "start": 5, "end": 5 },
+              "quote": "returns `PAYMENT_PENDING`"
+            }
+          ],
+          "confidence": 0.96
+        },
+        {
+          "id": "return_out_of_stock",
+          "label": "Return OUT_OF_STOCK",
+          "kind": "end",
+          "description": "System returns OUT_OF_STOCK and does not create payment.",
+          "source_refs": [
+            {
+              "file": "minimal-source.md",
+              "lines": { "start": 7, "end": 7 },
+              "quote": "return `OUT_OF_STOCK` and must not create a payment request"
+            }
+          ],
+          "confidence": 0.98
+        }
+      ],
+      "edges": [
+        {
+          "id": "submit_to_stock",
+          "from": "submit_order",
+          "to": "check_stock",
+          "label": "submit",
+          "source_refs": [
+            {
+              "file": "minimal-source.md",
+              "lines": { "start": 3, "end": 3 },
+              "quote": "When a user submits an order"
+            }
+          ],
+          "confidence": 0.95
+        },
+        {
+          "id": "stock_yes_to_payment",
+          "from": "check_stock",
+          "to": "create_payment",
+          "label": "available",
+          "kind": "decision_branch",
+          "source_refs": [
+            {
+              "file": "minimal-source.md",
+              "lines": { "start": 5, "end": 5 },
+              "quote": "If stock is available"
+            }
+          ],
+          "confidence": 0.97
+        },
+        {
+          "id": "payment_to_pending",
+          "from": "create_payment",
+          "to": "return_pending",
+          "label": "created",
+          "source_refs": [
+            {
+              "file": "minimal-source.md",
+              "lines": { "start": 5, "end": 5 },
+              "quote": "returns `PAYMENT_PENDING`"
+            }
+          ],
+          "confidence": 0.96
+        },
+        {
+          "id": "stock_no_to_out_of_stock",
+          "from": "check_stock",
+          "to": "return_out_of_stock",
+          "label": "unavailable",
+          "kind": "decision_branch",
+          "source_refs": [
+            {
+              "file": "minimal-source.md",
+              "lines": { "start": 7, "end": 7 },
+              "quote": "If stock is unavailable"
+            }
+          ],
+          "confidence": 0.98
+        }
+      ],
+      "open_questions": [
+        {
+          "id": "payment_retry_behavior",
+          "question": "Should payment provider timeout retry behavior be in scope?",
+          "blocking": false,
+          "owner": "Product/Engineering",
+          "action": "Decide whether retry behavior belongs in this spec.",
+          "source_refs": [
+            {
+              "file": "minimal-source.md",
+              "lines": { "start": 9, "end": 9 },
+              "quote": "The spec does not define retry behavior for payment provider timeouts."
+            }
+          ]
+        }
+      ],
+      "assumptions": []
+    }
+  ],
+  "requirements": [
+    {
+      "id": "req_check_stock",
+      "text": "The system MUST check whether stock is available when a user submits an order.",
+      "priority": "must",
+      "status": "confirmed",
+      "keywords": ["MUST"],
+      "source_refs": [
+        {
+          "file": "minimal-source.md",
+          "lines": { "start": 3, "end": 3 },
+          "quote": "the system MUST check whether stock is available"
+        }
+      ],
+      "confidence": 0.98
+    },
+    {
+      "id": "req_no_payment_out_of_stock",
+      "text": "The system MUST return OUT_OF_STOCK and must not create a payment request when stock is unavailable.",
+      "priority": "must",
+      "status": "confirmed",
+      "keywords": ["MUST"],
+      "source_refs": [
+        {
+          "file": "minimal-source.md",
+          "lines": { "start": 7, "end": 7 },
+          "quote": "must not create a payment request"
+        }
+      ],
+      "confidence": 0.98
+    }
+  ],
+  "apis": [],
+  "data_models": [],
+  "states": [],
+  "decisions": [],
+  "risks": [],
+  "open_questions": [
+    {
+      "id": "payment_retry_behavior_global",
+      "question": "Should payment provider timeout retry behavior be in scope?",
+      "blocking": false,
+      "owner": "Product/Engineering",
+      "action": "Decide whether retry behavior belongs in this spec.",
+      "source_refs": [
+        {
+          "file": "minimal-source.md",
+          "lines": { "start": 9, "end": 9 },
+          "quote": "The spec does not define retry behavior for payment provider timeouts."
+        }
+      ]
+    }
+  ],
+  "assumptions": []
+}

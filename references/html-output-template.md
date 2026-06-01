@@ -2,7 +2,7 @@
 
 Reference: `references/template.html`
 
-Use `template.html` as the structural and visual foundation for every generated HTML file. Copy its CSS verbatim and follow the section order below. Add or remove sections based on the source material, but keep the overall layout, class names, and styling consistent.
+Use `template.html` as the structural and visual foundation for article-mode HTML files. Copy its CSS verbatim and follow the section order below. Add or remove sections based on the source material, but keep the overall layout, class names, and styling consistent. For review-mode output, use `references/review-output-template.md` instead.
 
 ## Section Order
 

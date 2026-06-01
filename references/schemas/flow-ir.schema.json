@@ -1,0 +1,413 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/spec-to-readable-html/flow-ir.schema.json",
+  "title": "FlowIR",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "document", "sections", "diagrams"],
+  "properties": {
+    "version": {
+      "const": "flow-ir/v1"
+    },
+    "document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "source", "doc_type"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "source": {
+          "oneOf": [
+            { "type": "string", "minLength": 1 },
+            {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string", "minLength": 1 }
+            }
+          ]
+        },
+        "doc_type": {
+          "type": "string",
+          "enum": ["prd", "api_spec", "technical_spec", "design_doc", "rfc", "runbook", "other"]
+        },
+        "language": { "type": "string" },
+        "audience": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "scope": { "type": "string" },
+        "out_of_scope": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/section" }
+    },
+    "diagrams": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/diagram" }
+    },
+    "requirements": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/requirement" }
+    },
+    "apis": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/api" }
+    },
+    "data_models": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/namedItem" }
+    },
+    "states": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/namedItem" }
+    },
+    "decisions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/namedItem" }
+    },
+    "risks": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/riskItem" }
+    },
+    "open_questions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/question" }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/assumption" }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]*$"
+    },
+    "sourceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file"],
+      "properties": {
+        "file": { "type": "string", "minLength": 1 },
+        "lines": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["start", "end"],
+          "properties": {
+            "start": { "type": "integer", "minimum": 1 },
+            "end": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "quote": { "type": "string" }
+      }
+    },
+    "risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level"],
+      "properties": {
+        "level": { "type": "string", "enum": ["low", "medium", "high"] },
+        "reasons": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "inference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "rationale"],
+      "properties": {
+        "type": { "type": "string", "enum": ["inferred", "assumption", "open_question"] },
+        "rationale": { "type": "string", "minLength": 1 }
+      }
+    },
+    "traceable": {
+      "type": "object",
+      "properties": {
+        "source_refs": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/sourceRef" }
+        },
+        "inference": { "$ref": "#/$defs/inference" },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "section": {
+      "allOf": [
+        { "$ref": "#/$defs/traceable" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "title", "treatment", "blocks"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "title": { "type": "string", "minLength": 1 },
+            "treatment": { "type": "string", "enum": ["preserved", "summarized", "inferred"] },
+            "blocks": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "$ref": "#/$defs/block" }
+            },
+            "source_refs": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/sourceRef" }
+            },
+            "inference": { "$ref": "#/$defs/inference" },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      ]
+    },
+    "block": {
+      "allOf": [
+        { "$ref": "#/$defs/traceable" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "kind", "content"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "kind": { "type": "string", "enum": ["summary", "paragraph", "table", "list", "callout", "code", "diagram_ref", "raw_artifact"] },
+            "content": {},
+            "source_refs": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/sourceRef" }
+            },
+            "inference": { "$ref": "#/$defs/inference" },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      ]
+    },
+    "diagram": {
+      "allOf": [
+        { "$ref": "#/$defs/traceable" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "title", "type", "purpose", "scope", "nodes", "edges", "reviewer_should_check"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "title": { "type": "string", "minLength": 1 },
+            "type": { "type": "string", "enum": ["flowchart", "sequence", "state", "er", "architecture", "dependency_graph", "large_directed_graph"] },
+            "direction": { "type": "string", "enum": ["TD", "TB", "BT", "LR", "RL"] },
+            "purpose": { "type": "string", "minLength": 1 },
+            "scope": { "type": "string", "minLength": 1 },
+            "out_of_scope": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "status": { "type": "string", "enum": ["confirmed", "inferred", "mixed"] },
+            "nodes": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/node" }
+            },
+            "edges": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/edge" }
+            },
+            "open_questions": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/question" }
+            },
+            "assumptions": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/assumption" }
+            },
+            "reviewer_should_check": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string", "minLength": 1 }
+            },
+            "source_refs": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/sourceRef" }
+            },
+            "inference": { "$ref": "#/$defs/inference" },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      ]
+    },
+    "node": {
+      "allOf": [
+        { "$ref": "#/$defs/traceable" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "label", "kind"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "label": { "type": "string", "minLength": 1 },
+            "kind": { "type": "string", "enum": ["start", "end", "process", "decision", "state", "actor", "system", "data", "api", "event", "external", "unknown"] },
+            "description": { "type": "string" },
+            "risk": { "$ref": "#/$defs/risk" },
+            "source_refs": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/sourceRef" }
+            },
+            "inference": { "$ref": "#/$defs/inference" },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      ]
+    },
+    "edge": {
+      "allOf": [
+        { "$ref": "#/$defs/traceable" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "from", "to"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "from": { "$ref": "#/$defs/id" },
+            "to": { "$ref": "#/$defs/id" },
+            "label": { "type": "string" },
+            "kind": { "type": "string", "enum": ["normal", "success", "failure", "timeout", "retry", "decision_branch", "async", "sync"] },
+            "risk": { "$ref": "#/$defs/risk" },
+            "source_refs": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/sourceRef" }
+            },
+            "inference": { "$ref": "#/$defs/inference" },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      ]
+    },
+    "requirement": {
+      "allOf": [
+        { "$ref": "#/$defs/traceable" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "text", "priority", "status"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "text": { "type": "string", "minLength": 1 },
+            "priority": { "type": "string", "enum": ["must", "should", "could", "wont", "unknown"] },
+            "status": { "type": "string", "enum": ["confirmed", "inferred", "assumption", "open_question"] },
+            "keywords": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "source_refs": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/sourceRef" }
+            },
+            "inference": { "$ref": "#/$defs/inference" },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      ]
+    },
+    "api": {
+      "allOf": [
+        { "$ref": "#/$defs/traceable" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "method", "path", "description"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "method": { "type": "string" },
+            "path": { "type": "string" },
+            "description": { "type": "string" },
+            "auth": { "type": "string" },
+            "source_refs": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/sourceRef" }
+            },
+            "inference": { "$ref": "#/$defs/inference" },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      ]
+    },
+    "namedItem": {
+      "allOf": [
+        { "$ref": "#/$defs/traceable" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "name", "description"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "name": { "type": "string", "minLength": 1 },
+            "description": { "type": "string" },
+            "source_refs": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/sourceRef" }
+            },
+            "inference": { "$ref": "#/$defs/inference" },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      ]
+    },
+    "riskItem": {
+      "allOf": [
+        { "$ref": "#/$defs/traceable" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "title", "level", "description"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "title": { "type": "string", "minLength": 1 },
+            "level": { "type": "string", "enum": ["low", "medium", "high"] },
+            "description": { "type": "string" },
+            "mitigation": { "type": "string" },
+            "source_refs": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/sourceRef" }
+            },
+            "inference": { "$ref": "#/$defs/inference" },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      ]
+    },
+    "question": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "question"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "question": { "type": "string", "minLength": 1 },
+        "blocking": { "type": "boolean" },
+        "owner": { "type": "string" },
+        "action": { "type": "string" },
+        "source_refs": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/sourceRef" }
+        }
+      }
+    },
+    "assumption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "statement", "rationale"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "statement": { "type": "string", "minLength": 1 },
+        "rationale": { "type": "string", "minLength": 1 },
+        "source_refs": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/sourceRef" }
+        }
+      }
+    }
+  }
+}

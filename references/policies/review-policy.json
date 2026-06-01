@@ -1,0 +1,44 @@
+{
+  "version": "review-policy/v1",
+  "required_review_sections": [
+    "review_summary",
+    "automated_checks",
+    "high_risk_items",
+    "semantic_diff",
+    "diagrams",
+    "evidence_matrix",
+    "open_questions_assumptions",
+    "role_specific_review",
+    "raw_artifacts"
+  ],
+  "risk_rules": {
+    "high_risk_requires_source_or_question": true,
+    "inferred_high_risk_visible_in_summary": true,
+    "blocking_open_questions_first": true
+  },
+  "traceability": {
+    "levels": [
+      "section",
+      "diagram",
+      "node",
+      "edge",
+      "risk",
+      "open_question"
+    ],
+    "allowed_treatments": [
+      "preserved",
+      "summarized",
+      "inferred"
+    ]
+  },
+  "roles": [
+    "product",
+    "engineering",
+    "qa",
+    "security_sre"
+  ],
+  "dependencies": {
+    "review_mode_allows_cdn": false,
+    "article_mode_allows_mermaid_cdn": true
+  }
+}
